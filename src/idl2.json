@@ -1,0 +1,399 @@
+{
+    "version": "0.1.0",
+    "name": "bruh",
+    "instructions": [
+        {
+            "name": "authorizeTransfer",
+            "accounts": [
+                {
+                    "name": "projectWallet",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "projectTokenAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authorizer",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "config",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "tokenProgram",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "amount",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "initialize",
+            "accounts": [
+                {
+                    "name": "admin",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "defaultReferrer",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "config",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "defaultReferrerAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "admin",
+                    "type": "publicKey"
+                },
+                {
+                    "name": "payment",
+                    "type": "u64"
+                },
+                {
+                    "name": "maxPurchases",
+                    "type": "u8"
+                },
+                {
+                    "name": "projectWallet",
+                    "type": "publicKey"
+                },
+                {
+                    "name": "defaultReferrer",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "bindReferrer",
+            "accounts": [
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "userAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "referrerAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "referrer",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "privateSale",
+            "accounts": [
+                {
+                    "name": "user",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "userAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "config",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "projectWallet",
+                    "isMut": true,
+                    "isSigner": true
+                },
+                {
+                    "name": "referrer1",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "referrer2",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "referrer3",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "authorizer",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "userTokenAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "projectTokenAccount",
+                    "isMut": true,
+                    "isSigner": false
+                },
+                {
+                    "name": "tokenProgram",
+                    "isMut": false,
+                    "isSigner": false
+                },
+                {
+                    "name": "systemProgram",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "totalAmount",
+                    "type": "u64"
+                }
+            ]
+        },
+        {
+            "name": "updateConfig",
+            "accounts": [
+                {
+                    "name": "admin",
+                    "isMut": false,
+                    "isSigner": true
+                },
+                {
+                    "name": "config",
+                    "isMut": true,
+                    "isSigner": false
+                }
+            ],
+            "args": [
+                {
+                    "name": "payment",
+                    "type": "u64"
+                },
+                {
+                    "name": "maxPurchases",
+                    "type": "u8"
+                },
+                {
+                    "name": "projectWallet",
+                    "type": "publicKey"
+                }
+            ]
+        },
+        {
+            "name": "getReferrer",
+            "accounts": [
+                {
+                    "name": "userAccount",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [],
+            "returns": "publicKey"
+        },
+        {
+            "name": "getConfig",
+            "accounts": [
+                {
+                    "name": "config",
+                    "isMut": false,
+                    "isSigner": false
+                }
+            ],
+            "args": [],
+            "returns": {
+                "defined": "Config"
+            }
+        }
+    ],
+    "accounts": [
+        {
+            "name": "Config",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "admin",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "payment",
+                        "type": "u64"
+                    },
+                    {
+                        "name": "maxPurchasesPerUser",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "projectWallet",
+                        "type": "publicKey"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "UserAccount",
+            "type": {
+                "kind": "struct",
+                "fields": [
+                    {
+                        "name": "user",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "referrer",
+                        "type": "publicKey"
+                    },
+                    {
+                        "name": "isBound",
+                        "type": "bool"
+                    },
+                    {
+                        "name": "purchaseCount",
+                        "type": "u8"
+                    },
+                    {
+                        "name": "bump",
+                        "type": "u8"
+                    }
+                ]
+            }
+        }
+    ],
+    "events": [
+        {
+            "name": "PrivateSaleEvent",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "amount",
+                    "type": "u64",
+                    "index": false
+                }
+            ]
+        },
+        {
+            "name": "BindReferrerEvent",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "referrer",
+                    "type": "publicKey",
+                    "index": false
+                }
+            ]
+        },
+        {
+            "name": "UpdateConfigEvent",
+            "fields": [
+                {
+                    "name": "admin",
+                    "type": "publicKey",
+                    "index": false
+                },
+                {
+                    "name": "payment",
+                    "type": "u64",
+                    "index": false
+                },
+                {
+                    "name": "maxPurchases",
+                    "type": "u8",
+                    "index": false
+                }
+            ]
+        }
+    ],
+    "errors": [
+        {
+            "code": 6000,
+            "name": "AlreadyBound",
+            "msg": "User already bound to a referrer."
+        },
+        {
+            "code": 6001,
+            "name": "NotBound",
+            "msg": "User has not bound to a referrer."
+        },
+        {
+            "code": 6002,
+            "name": "MaxPurchaseReached",
+            "msg": "User reached max purchase limit."
+        },
+        {
+            "code": 6003,
+            "name": "Unauthorized",
+            "msg": "Unauthorized access."
+        },
+        {
+            "code": 6004,
+            "name": "NotPurchase",
+            "msg": "User has not purchase."
+        },
+        {
+            "code": 6005,
+            "name": "NotMatchPayment",
+            "msg": "Payment amount does not match."
+        },
+        {
+            "code": 6006,
+            "name": "CannotBindSelf",
+            "msg": "User cannot bind to themselves."
+        }
+    ]
+}

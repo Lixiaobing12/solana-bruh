@@ -1,0 +1,23 @@
+{
+    "coins": [{
+            "address": "0x0eb455a49bf180ded02732b9aa52a3b7c1146a8d",
+            "name": "CON",
+            "img": "/assets/btc.png",
+            "isfromDefault": true,
+            "type": "from",
+            "only": "all",
+            "balanceOf": "0.00"
+        },
+        {
+            "address": "0x55d398326f99059fF775485246999027B3197955",
+            "name": "USDT",
+            "img": "/assets/dai.png",
+            "istoDefault": true,
+            "type": "to",
+            "only": "all",
+            "balanceOf": "0.00"
+        }
+    ],
+    "ROUTER_PANCAKE": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+    "SWAP_CONTRACT": "0x392Ca95277118C66390DF84C39Ca1DcF2EB5DE1e"
+}
