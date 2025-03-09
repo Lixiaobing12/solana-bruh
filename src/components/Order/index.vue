@@ -29,17 +29,6 @@ export default defineComponent({
           console.log("res", res);
           list.value = res.data.list;
         });
-      // get_presale_list({
-      //   userAddr: account.value,
-      //   page: 1,
-      //   pageSize: 99,
-      // }).then((res) => {
-      //   list.value = res.data.list.map((item) => ({
-      //     amount: item.amount,
-      //     time: moment(item.CreatedAt).format("YYYY-MM-DD HH:mm:ss"),
-      //     status: Number(item.status),
-      //   }));
-      // });
     };
 
     watch(
@@ -54,7 +43,10 @@ export default defineComponent({
     return () => (
       <div class="w-full p-4">
         {list.value.length ? (
-          <n-scrollbar style="max-height: 300px;padding-bottom:30px;">
+          <n-scrollbar
+            style="max-height: 300px;padding-bottom:30px;"
+            class="overflow-hidden"
+          >
             <NSpace vertical class="item-width">
               <NList style="--n-merged-color:transparent;" show-divider={false}>
                 {list.value.map((item) => (
@@ -68,7 +60,7 @@ export default defineComponent({
                       {item.status === -1 ? (
                         <span style="color:#FF5252">购买失败</span>
                       ) : item.status === 0 ? (
-                        <span style="color:#bbb">交易确认中</span>
+                        <span style="color:#F6C72F">{t("status_success")}</span>
                       ) : item.status === 1 ? (
                         <span style="color:#F6C72F">{t("status_success")}</span>
                       ) : (

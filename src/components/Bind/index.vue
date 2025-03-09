@@ -197,21 +197,26 @@ export default {
         message.success(t("copied"));
       }
     };
+    const init = async () => {
+      try {
+        const { program } = workspace.value;
+        const [pda, bump] = PublicKey.findProgramAddressSync(
+          [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+          program.programId
+        );
+        const { purchaseCount } =
+          await workspace.value.program.account.userAccount.fetch(pda);
+        console.log("purchaseCount", purchaseCount);
+        if (purchaseCount > 0) {
+          isActive.value = true;
+        }
+      } catch (e) {}
+
+      setTimeout(init, 5000);
+    };
     watch([() => AnchorWallet.value, workspace.value], async () => {
       if (AnchorWallet.value) {
-        try {
-          const { program } = workspace.value;
-          const [pda, bump] = PublicKey.findProgramAddressSync(
-            [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
-            program.programId
-          );
-          const { purchaseCount } =
-            await workspace.value.program.account.userAccount.fetch(pda);
-          console.log("purchaseCount", purchaseCount);
-          if (purchaseCount > 0) {
-            isActive.value = true;
-          }
-        } catch (e) {}
+        init();
       }
     });
     return () => (

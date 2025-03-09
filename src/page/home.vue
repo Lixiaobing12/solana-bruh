@@ -165,7 +165,7 @@
               {{ $t("myteam") }}
             </div>
           </div>
-          <div class="glass-shadow rounded-2xl" style="height: 300px">
+          <div class="glass-shadow rounded-2xl">
             <Orders v-if="activeTab === 'order'" />
             <Team v-else />
           </div>

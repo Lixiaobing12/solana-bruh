@@ -170,10 +170,8 @@ export default {
           [Buffer.from("config")],
           program.programId
         );
-        const { admin, projectWallet } = await program.account.config.fetch(
-          pda
-        );
-        console.log("config", admin.toBase58(), projectWallet.toBase58());
+        const { admin, projectWallet, defaultReferrer, mintToken } =
+          await program.account.config.fetch(pda);
         /** 用户pda */
         const [pda1, bump1] = PublicKey.findProgramAddressSync(
           [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
@@ -205,12 +203,12 @@ export default {
           const referrer = await program.account.userAccount
             .fetch(pda)
             .then(({ referrer }) => referrer.toBase58())
-            .catch(() => projectWallet.toBase58());
+            .catch(() => defaultReferrer.toBase58());
 
           console.log(referrer, PublicKey.default.toBase58());
           if (referrer === PublicKey.default.toBase58()) {
             let _arrs = Array.from({ length: 3 }).map(
-              (_, i) => referrers[i] || projectWallet.toBase58()
+              (_, i) => referrers[i] || defaultReferrer.toBase58()
             );
             referrers = _arrs;
             break;
@@ -218,10 +216,9 @@ export default {
             referrers.push(referrer);
           }
         }
-        const minPk = new PublicKey(import.meta.env.VITE_BASE_TOKEN);
 
         const userAta = getAssociatedTokenAddressSync(
-          minPk,
+          mintToken,
           AnchorWallet.value.publicKey
         );
         console.log("userAta", userAta.toBase58());
@@ -237,12 +234,12 @@ export default {
               AnchorWallet.value.publicKey,
               userAta,
               AnchorWallet.value.publicKey,
-              minPk
+              mintToken
             )
           );
         }
 
-        const projectAta = getAssociatedTokenAddressSync(minPk, admin);
+        const projectAta = getAssociatedTokenAddressSync(mintToken, admin);
         const projectAtaInfo = await connection.getAccountInfo(projectAta);
 
         if (!projectAtaInfo) {

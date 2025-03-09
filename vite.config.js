@@ -66,9 +66,11 @@ export default defineConfig({
         }
     },
     build: {
-        minify: 'esbuild',
-        esbuild: {
-            drop: ['console'],
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: true,
+            },
         },
     },
 });
