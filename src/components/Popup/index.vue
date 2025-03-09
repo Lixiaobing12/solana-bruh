@@ -166,6 +166,14 @@ export default {
       try {
         const { program, connection } = workspace.value;
 
+        const [pda, bump] = PublicKey.findProgramAddressSync(
+          [Buffer.from("config")],
+          program.programId
+        );
+        const { admin, projectWallet } = await program.account.config.fetch(
+          pda
+        );
+        console.log("config", admin.toBase58(), projectWallet.toBase58());
         /** 用户pda */
         const [pda1, bump1] = PublicKey.findProgramAddressSync(
           [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
@@ -185,7 +193,6 @@ export default {
 
         let referrers = [];
         while (referrers.length < 3) {
-          console.log("referrers", referrers);
           const [pda, bump] = PublicKey.findProgramAddressSync(
             [
               Buffer.from("bruh"),
@@ -198,10 +205,12 @@ export default {
           const referrer = await program.account.userAccount
             .fetch(pda)
             .then(({ referrer }) => referrer.toBase58())
-            .catch(() => import.meta.env.VITE_BASE_PROJECTWALLET);
-          if (referrer === import.meta.env.VITE_BASE_PROJECTWALLET) {
+            .catch(() => projectWallet.toBase58());
+
+          console.log(referrer, PublicKey.default.toBase58());
+          if (referrer === PublicKey.default.toBase58()) {
             let _arrs = Array.from({ length: 3 }).map(
-              (_, i) => referrers[i] || import.meta.env.VITE_BASE_PROJECTWALLET
+              (_, i) => referrers[i] || projectWallet.toBase58()
             );
             referrers = _arrs;
             break;
@@ -214,7 +223,6 @@ export default {
         const userAta = getAssociatedTokenAddressSync(
           minPk,
           AnchorWallet.value.publicKey
-          // new PublicKey("EHscUboDTCxfBwUv11rg9GfpyicBNwh3TaEzj8fxadVs")
         );
         console.log("userAta", userAta.toBase58());
         const userAtaInfo = await connection.getAccountInfo(userAta);
@@ -234,10 +242,7 @@ export default {
           );
         }
 
-        const projectAta = getAssociatedTokenAddressSync(
-          minPk,
-          new PublicKey(import.meta.env.VITE_BASE_PROJECTWALLET)
-        );
+        const projectAta = getAssociatedTokenAddressSync(minPk, admin);
         const projectAtaInfo = await connection.getAccountInfo(projectAta);
 
         if (!projectAtaInfo) {
@@ -255,7 +260,7 @@ export default {
           user: AnchorWallet.value.publicKey.toBase58(),
           userAccount: pda1.toBase58(),
           config: pda2.toBase58(),
-          projectWallet: import.meta.env.VITE_BASE_PROJECTWALLET,
+          projectWallet: projectWallet.toBase58(),
           referrer1: referrers[0],
           referrer2: referrers[1],
           referrer3: referrers[2],
@@ -265,14 +270,14 @@ export default {
           tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
           systemProgram: SystemProgram.programId.toBase58(),
         });
-        let bn = new BN(BigNumber(_price).times(LAMPORTS_PER_SOL).toString())
+        let bn = new BN(BigNumber(_price).times(LAMPORTS_PER_SOL).toString());
         const privateSaleTx = await program.methods
           .privateSale(bn)
           .accounts({
             user: AnchorWallet.value.publicKey,
             userAccount: pda1,
             config: pda2,
-            projectWallet: import.meta.env.VITE_BASE_PROJECTWALLET,
+            projectWallet: projectWallet.toBase58(),
             referrer1: referrers[0],
             referrer2: referrers[1],
             referrer3: referrers[2],
