@@ -56,6 +56,6 @@ export default defineComponent({
 }
 
 .tip {
-  color: #bbb;
+  color: #4a4a4a;
 }
 </style>

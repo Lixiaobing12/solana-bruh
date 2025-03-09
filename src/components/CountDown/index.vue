@@ -41,7 +41,9 @@ export default defineComponent({
                       <img src="/assets/countdownbg.png" width="60" alt="" />
                       <span class="bg-font">{item}</span>
                     </div>
-                    <span style="color:#fff;margin-left:5px">{t(nameArr[index])}</span>
+                    <span style="color:#fff;margin-left:5px">
+                      {t(nameArr[index])}
+                    </span>
                   </div>
                 </NGi>
               </>
@@ -50,13 +52,11 @@ export default defineComponent({
         </>
       );
     };
-    const fetch = () => {
-      get_default_presale_config().then((res) => {
-        const { endAt } = res.data;
-        endTime.value = endAt;
+    fetch("/web/privateConfig/defaultPrivateConfig", { method: "POST" })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("res", res);
       });
-    };
-    // fetch();
     return () => (
       <>
         <NCountdown duration={diff.value} render={formatter} />

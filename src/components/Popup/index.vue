@@ -3,12 +3,25 @@ import { useUsdtStore } from "@/store/wallet";
 import { MinusSquareFilled } from "@vicons/antd";
 import { Loader } from "@vicons/tabler";
 import { NSpace, useMessage } from "naive-ui";
-import { computed, defineComponent, watch } from "vue";
+import { computed, defineComponent, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePresale } from "../../store/presale";
+import { useAnchorWallet } from "solana-wallets-vue";
+import { useWorkspace, initWorkspace } from "@/useWorkspace";
+import { storeToRefs } from "pinia";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js";
+import BigNumber from "bignumber.js";
+import {
+  createAssociatedTokenAccountInstruction,
+  getAssociatedTokenAddressSync,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import { web3 } from "@coral-xyz/anchor";
 
 const InputGroup = defineComponent({
+  props: ["maxCount"],
   setup(props, { emit }) {
+    console.log("props", props);
     const message = useMessage();
     const { t } = useI18n();
     const amount = ref(1);
@@ -18,11 +31,11 @@ const InputGroup = defineComponent({
         message.warning(t("vilidInput"));
         return;
       }
-      if (Number(e) < 0) {
-        amount.value = 0;
+      if (Number(e) < 1) {
+        amount.value = 1;
       } else {
-        if (e > 200) {
-          amount.value = 200;
+        if (e > props.maxCount) {
+          amount.value = props.maxCount;
         } else {
           amount.value = parseInt(e);
         }
@@ -36,7 +49,12 @@ const InputGroup = defineComponent({
     };
     return () => (
       <NSpace align="center">
-        <NIcon size={30} color={minusColor.value} class="group-middle">
+        <NIcon
+          size={30}
+          color={minusColor.value}
+          class="group-middle"
+          onClick={onChange.bind(null, amount.value - 1)}
+        >
           <MinusSquareFilled />
         </NIcon>
         <n-input
@@ -44,8 +62,14 @@ const InputGroup = defineComponent({
           readonly
           value={amount.value}
           style="width:70px;--n-height:25px;text-align:center;"
+          onChange={onChange}
         />
-        <img class="group-middle" src="/assets/add.png" width={25} />
+        <img
+          class="group-middle"
+          src="/assets/add.png"
+          width={25}
+          onClick={onChange.bind(null, amount.value + 1)}
+        />
       </NSpace>
     );
   },
@@ -54,21 +78,80 @@ export default {
   setup(prop, { expose }) {
     const presaleStore = usePresale();
     const { t } = useI18n();
+    const AnchorWallet = useAnchorWallet();
+    const workSpaceStore = useWorkspace();
+    const { workspace } = storeToRefs(workSpaceStore);
+    const info = ref({
+      maxPurchasesPerUser: 1,
+      payment: 0.01,
+      usePurchaseCount: 0,
+    });
+    const price = computed(() => info.value.payment);
     const usdtStore = useUsdtStore();
     const isVisiabled = ref(false);
     const message = useMessage();
     const amount = ref(1);
-    const price = import.meta.env.VITE_BASE_IDOCASH;
     const loading = ref(false);
     const changeVisiabled = (bool) => {
       isVisiabled.value = bool;
     };
+
+    const releasePurchaseCount = computed(
+      () => info.value.maxPurchasesPerUser - info.value.usePurchaseCount
+    );
+
+    const solBalance = ref(0);
+    watch(AnchorWallet, async (value) => {
+      if (value) {
+        const { program, connection } = workspace.value;
+        console.log("program", program);
+        if (program) {
+          try {
+            const [pda, bump] = PublicKey.findProgramAddressSync(
+              [Buffer.from("config")],
+              program.programId
+            );
+
+            const [pda2, bump2] = PublicKey.findProgramAddressSync(
+              [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+              program.programId
+            );
+            const res = await program.account.config.fetch(pda);
+            info.value.maxPurchasesPerUser = res.maxPurchasesPerUser;
+            info.value.payment = BigNumber(res.payment.toString())
+              .div(LAMPORTS_PER_SOL)
+              .toFixed(2);
+            const userRes = await program.account.userAccount.fetch(pda2);
+            info.value.usePurchaseCount = userRes.purchaseCount;
+
+            console.log("info", info);
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+
+        if (connection) {
+          try {
+            const balance = await connection.getBalance(
+              AnchorWallet.value.publicKey
+            );
+            console.log("balance", balance.toString());
+            solBalance.value = BigNumber(balance.toString())
+              .div(LAMPORTS_PER_SOL)
+              .toFixed(2);
+          } catch (err) {
+            console.log("err", err);
+          }
+        }
+      }
+    });
     watch(isVisiabled, (value) => {
       !value && (amount.value = 1);
     });
+
     let isOverBalanceOf = computed(
       () =>
-        usdtStore.balance.div(1e18).lt(amount.value * price) ||
+        BigNumber(solBalance.value).lt(amount.value * price.value) ||
         !Number(amount.value)
     );
     const changeValue = (e) => {
@@ -78,19 +161,148 @@ export default {
     };
     const payabled = async () => {
       loading.value = true;
-      let _price = (amount.value * price).toFixed(2);
+      let _price = (amount.value * price.value).toFixed(2);
       try {
-        const tx = await presaleStore.purchased(_price);
-        await tx.wait();
-        message.success(t("succeeded"));
-        setTimeout(() => {
+        const { program, connection } = workspace.value;
+
+        /** 用户pda */
+        const [pda1, bump1] = PublicKey.findProgramAddressSync(
+          [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+          program.programId
+        );
+        /** config pda */
+        const [pda2, bump2] = PublicKey.findProgramAddressSync(
+          [Buffer.from("config")],
+          program.programId
+        );
+
+        /** authority */
+        const [pda3, bump3] = PublicKey.findProgramAddressSync(
+          [Buffer.from("authority")],
+          program.programId
+        );
+
+        let referrers = [];
+        while (referrers.length < 3) {
+          console.log("referrers", referrers);
+          const [pda, bump] = PublicKey.findProgramAddressSync(
+            [
+              Buffer.from("bruh"),
+              referrers.length
+                ? new PublicKey(referrers[referrers.length - 1]).toBuffer()
+                : AnchorWallet.value.publicKey.toBuffer(),
+            ],
+            program.programId
+          );
+          const referrer = await program.account.userAccount
+            .fetch(pda)
+            .then(({ referrer }) => referrer.toBase58())
+            .catch(() => import.meta.env.VITE_BASE_PROJECTWALLET);
+          if (referrer === import.meta.env.VITE_BASE_PROJECTWALLET) {
+            let _arrs = Array.from({ length: 3 }).map(
+              (_, i) => referrers[i] || import.meta.env.VITE_BASE_PROJECTWALLET
+            );
+            referrers = _arrs;
+            break;
+          } else {
+            referrers.push(referrer);
+          }
+        }
+        const minPk = new PublicKey(import.meta.env.VITE_BASE_TOKEN);
+
+        const userAta = getAssociatedTokenAddressSync(
+          minPk,
+          AnchorWallet.value.publicKey
+        );
+        const userAtaInfo = await connection.getAccountInfo(userAta);
+
+        const transition = new web3.Transaction();
+        if (!userAtaInfo) {
+          /** 创建ATA */
+          transition.add(
+            createAssociatedTokenAccountInstruction(
+              AnchorWallet.value.publicKey,
+              userAta,
+              AnchorWallet.value.publicKey,
+              minPk
+            )
+          );
+        }
+
+        const projectAta = getAssociatedTokenAddressSync(
+          minPk,
+          new PublicKey(import.meta.env.VITE_BASE_PROJECTWALLET)
+        );
+        const projectAtaInfo = await connection.getAccountInfo(projectAta);
+
+        if (!projectAtaInfo) {
+          message.error("Something went wrong");
           loading.value = false;
-          changeVisiabled(false);
-        }, 500);
+          return;
+        }
+
+        console.log(
+          "totalAmount",
+          BigNumber(_price).times(LAMPORTS_PER_SOL).toFixed(0)
+        );
+        console.log({
+          user: AnchorWallet.value.publicKey.toBase58(),
+          userAccount: pda1.toBase58(),
+          config: pda2.toBase58(),
+          projectWallet: import.meta.env.VITE_BASE_PROJECTWALLET,
+          referrer1: referrers[0],
+          referrer2: referrers[1],
+          referrer3: referrers[2],
+          authorizer: pda3.toBase58(),
+          userTokenAccount: userAta.toBase58(),
+          projectTokenAccount: projectAta.toBase58(),
+          tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
+          systemProgram: SystemProgram.programId.toBase58(),
+        });
+
+        const privateSaleTx = await program.methods
+          .privateSale(BigNumber(_price).times(LAMPORTS_PER_SOL).toFixed(0))
+          .accounts({
+            user: AnchorWallet.value.publicKey,
+            userAccount: pda1,
+            config: pda2,
+            projectWallet: import.meta.env.VITE_BASE_PROJECTWALLET,
+            referrer1: referrers[0],
+            referrer2: referrers[1],
+            referrer3: referrers[2],
+            authorizer: pda3,
+            userTokenAccount: userAta,
+            projectTokenAccount: projectAta,
+            tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
+            systemProgram: SystemProgram.programId,
+          })
+          .instruction();
+        transition.add(privateSaleTx);
+
+        const { blockhash } = await connection.getRecentBlockhash();
+        transition.recentBlockhash = blockhash;
+        transition.feePayer = AnchorWallet.value.publicKey;
+        const signedTransaction = await program.provider.wallet.signTransaction(
+          transition
+        );
+        const tx = await connection.sendRawTransaction(
+          signedTransaction.serialize()
+        );
+        setTimeout(async () => {
+          await connection.confirmTransaction(tx);
+          await fetch("/web/privateSale/createBruhPrivateSale", {
+            method: "POST",
+            body: JSON.stringify({
+              txId: tx,
+            }),
+          }).then((res) => res.json());
+          message.success(t("succeeded"));
+          loading.value = false;
+        });
       } catch (err) {
+        console.log("err", err);
         message.error(t("failed"));
         loading.value = false;
-        alert(err.message);
       }
     };
     expose({ changeVisiabled });
@@ -109,7 +321,7 @@ export default {
             body-style={{
               "border-radius": "15px 15px 0 0",
               "background-image":
-                "linear-gradient( 321deg, #181D1C 0%, #413612 22%, #4D3E0F 46%, #6A3A1D 75%, #6A3126 100%)",
+                "linear-gradient(to bottom right, #00feef 30%, #785ef0)",
               "border-top": "1px solid #978FF6",
             }}
           >
@@ -119,13 +331,17 @@ export default {
             >
               <img src="/assets/close.png" width="25" />
             </div>
-            <p class="text-white text-center text-xl">
-              {t("confirmOrders")}
-            </p>
+            <p class="text-white text-center text-xl">{t("confirmOrders")}</p>
             <NThing
               class="border"
               v-slots={{
-                avatar: () => <n-image width="50" src="/assets/order.png" />,
+                avatar: () => (
+                  <n-image
+                    width="50"
+                    src="/assets/logo.jpg"
+                    class="rounded-full"
+                  />
+                ),
                 header: () => (
                   <NScrollbar style="max-height: 40px;color:#fff;">
                     <span>{t("joinGetReward")}</span>
@@ -133,24 +349,27 @@ export default {
                 ),
                 description: () => (
                   <span style="color:#F6C72F;font-size:16px;font-weight:bold;">
-                    {price}USDT{t("least")}
+                    {price.value}SOL{t("least")}
                   </span>
                 ),
               }}
             />
             <NSpace justify="space-between" align="center" class="border">
               <div class="amount">{t("quantity")}</div>
-              <InputGroup onChange={changeValue} />
+              <InputGroup
+                onChange={changeValue}
+                maxCount={releasePurchaseCount.value}
+              />
             </NSpace>
             <NSpace justify="space-between" align="center" class="border">
               <div class="amount">{t("totalPrice")}</div>
               <NP style="color:#F6C72F;--n-font-size:20px;">
-                {(amount.value * price).toFixed(2)} USDT
+                {(amount.value * price.value).toFixed(2)} SOL
               </NP>
             </NSpace>
             <NSpace justify="space-between" align="center" class="text">
               <span>{t("walletBalanceOf")}</span>
-              <span>{usdtStore.balance.div(1e18).toFixed(2)} USDT</span>
+              <span>{solBalance.value} SOL</span>
             </NSpace>
 
             <button

@@ -4,7 +4,8 @@ import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
 import idl from "@/idl.json";
 import { defineStore } from "pinia";
 
-import { Program, Provider, web3 } from '@project-serum/anchor';
+// import { Program, Provider, web3 } from '@project-serum/anchor';
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
 
 const preflightCommitment = "processed";
 const commitment = "confirmed";
@@ -29,24 +30,25 @@ export const useWorkspace = defineStore('workspace', () => {
 export const initWorkspace = () => {
     const { workspace, setWorkSpace } = useWorkspace();
     const wallet = useAnchorWallet();
-    const connection = new Connection(clusterApiUrl(import.meta.env.VITE_SOLANA_NETWORK), commitment);
 
     watchEffect(() => {
         const currentWallet = wallet.value;
+        const connection = new Connection(clusterApiUrl(import.meta.env.VITE_SOLANA_NETWORK), commitment);
         if (currentWallet && currentWallet) {
-            console.log('currentWallet', currentWallet)
-            const provider = new Provider(
-                connection, currentWallet, "processed",
+            const provider = computed(
+                () =>
+                    new AnchorProvider(connection, wallet.value, {
+                        preflightCommitment,
+                        commitment,
+                    })
             );
-
-            const program = new Program(idl, programID, provider);
-
+            const program = computed(() => new Program(idl, programID, provider.value));
             setWorkSpace({
-                wallet: currentWallet,
+                wallet,
                 connection,
                 provider,
                 program,
-            })
+            });
         } else {
             setWorkSpace({
                 wallet: null,

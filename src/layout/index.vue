@@ -10,20 +10,14 @@ import { computed } from "@vue/runtime-core";
 import { useWallet } from "@/store/wallet";
 import { useUsdtStore } from "../store/wallet";
 import { storeToRefs } from "pinia";
+import { initWorkspace } from "@/useWorkspace";
 
-const walletStore = useWallet();
-const { wallet, connect, login } = walletStore;
-const { userInfo } = storeToRefs(walletStore);
-const { initStatice } = useUsdtStore();
 const iAsideShow = ref(false);
 const iParentAddress = ref(null);
 const cMargin = computed(() => (iAsideShow.value ? "0" : "3px 0"));
 
 const init = async () => {
-  // await connect();
-  console.log("init");
-  // await login();
-  // await initStatice();
+  initWorkspace();
 };
 onMounted(() => {
   init();
@@ -38,7 +32,7 @@ onMounted(() => {
 <style lang="less" scoped>
 .layout {
   min-height: 100vh;
-  background-image: url('/assets/bg.png');
+  background: linear-gradient(to bottom right, #00feef 30%, #785ef0);
   background-size: 100% 100%;
 
   .header {

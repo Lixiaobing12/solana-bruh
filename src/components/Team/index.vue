@@ -6,28 +6,36 @@ import axios from "axios";
 import { useWallet } from "../../store/wallet";
 import { get_subordinate, get_team_list } from "../../apis/api";
 import moment from "moment";
+import { useAnchorWallet } from "solana-wallets-vue";
 
 export default defineComponent({
   setup() {
     const { t } = useI18n();
-    const walletStore = useWallet();
-    const account = computed(() => walletStore.wallet.account);
+    const AnchorWallet = useAnchorWallet();
     const list = ref([]);
-    const fetch = () => {
-      get_team_list({ parentAddr: account.value }).then((res) => {
-        list.value = res.data.list || [];
-      });
+    const getData = () => {
+      fetch("/web/appUser/getAllSubordinates", {
+        method: "POST",
+        body: JSON.stringify({
+          page: 1,
+          pageSize: 99,
+          referrer: AnchorWallet.value?.publicKey.toBase58(),
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          console.log("res", res);
+        });
     };
-    // watch(
-    //   account,
-    //   () => {
-    //     fetch();
-    //     setInterval(fetch, 6000);
-    //   },
-    //   {
-    //     immediate: true,
-    //   }
-    // );
+    watch(
+      AnchorWallet,
+      () => {
+        AnchorWallet.value && getData();
+      },
+      {
+        immediate: true,
+      }
+    );
     return () => (
       <div class="p-4">
         {list.value.length ? (
@@ -58,7 +66,9 @@ export default defineComponent({
                     </n-gi>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:center;">
-                        <span style="color:#aaa;font-size:12px;">{t("selfHash")}</span>
+                        <span style="color:#aaa;font-size:12px;">
+                          {t("selfHash")}
+                        </span>
                         <span style="color:#F6C72F">
                           {Number(item.selfhash).toFixed(2)}
                         </span>
@@ -66,7 +76,9 @@ export default defineComponent({
                     </n-gi>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:center;">
-                        <span style="color:#aaa;font-size:12px;">{t("teamHash")}</span>
+                        <span style="color:#aaa;font-size:12px;">
+                          {t("teamHash")}
+                        </span>
                         <span style="color:#F6C72F">
                           {Number(item.teamhash).toFixed(2)}
                         </span>

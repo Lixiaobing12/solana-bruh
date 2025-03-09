@@ -3,41 +3,66 @@
     <NGi span="24 600:12 800:8" offset="0 600:6 800:8">
       <div class="home-container">
         <div class="header">
-          <n-space justify="space-between" align="center" style="padding: 30px 20px 20px">
-            <strong style="color: #fff; font-size: 18px">
-              POPOY
-            </strong>
+          <n-space
+            justify="space-between"
+            align="center"
+            style="padding: 30px 20px 20px"
+          >
+            <strong style="color: #fff; font-size: 18px"> POPOY </strong>
             <div>
               <div class="flex gap-4 items-center">
                 <!-- <button class="border rounded-full px-2">{{ $t('connectWallet') }}</button> -->
                 <wallet-multi-button></wallet-multi-button>
                 <div class="relative">
-                  <img src="/assets/lang.png" width="20" alt="" @click="
-                    () => {
-                      langMode = !langMode;
-                      menuMode = false;
-                    }
-                  " />
-                  <div class="absolute z-10 top-8 flex flex-col gap-2" :style="{ display: langMode ? 'flex' : `none` }">
-                    <img src="/assets/en.png" width="20" alt="" @click="changelang('en')" />
-                    <img src="/assets/zh.png" width="20" alt="" @click="changelang('zh')" />
+                  <img
+                    src="/assets/lang.png"
+                    width="20"
+                    alt=""
+                    @click="
+                      () => {
+                        langMode = !langMode;
+                        menuMode = false;
+                      }
+                    "
+                  />
+                  <div
+                    class="absolute z-10 top-8 flex flex-col gap-2"
+                    :style="{ display: langMode ? 'flex' : `none` }"
+                  >
+                    <img
+                      src="/assets/en.png"
+                      width="20"
+                      alt=""
+                      @click="changelang('en')"
+                    />
+                    <img
+                      src="/assets/zh.png"
+                      width="20"
+                      alt=""
+                      @click="changelang('zh')"
+                    />
                   </div>
                 </div>
               </div>
             </div>
           </n-space>
         </div>
-        <n-card class="my--card" style="
+        <n-card
+          class="my--card"
+          style="
             --n-color: transparent;
             --n-text-color: #000;
             --n-title-text-color: #000;
             --n-padding-bottom: 0;
-          " :bordered="false">
+          "
+          :bordered="false"
+        >
           <NSpace vertical>
             <CountDown />
             <Step />
             <NSpace justify="space-between" align="center" style="gap: 0">
-              <div style="
+              <div
+                style="
                   background: linear-gradient(
                     271deg,
                     #181d1c 0%,
@@ -51,8 +76,12 @@
                   border-radius: 9999px;
                   width: 88vw;
                   margin-top: 16px;
-                ">
-                <NTag size="large" round style="
+                "
+              >
+                <NTag
+                  size="large"
+                  round
+                  style="
                     text-align: center;
                     --n-text-color: #000;
                     --n-height: 38px;
@@ -63,7 +92,9 @@
                     background: #f6c72f;
                     border: 0;
                     font-weight: bold;
-                  " @click="!isdone && popupRef.changeVisiabled(true)">
+                  "
+                  @click="!isdone && popupRef.changeVisiabled(true)"
+                >
                   <NSpin :size="16" stroke="#fff" v-if="loading">
                     <template #icon>
                       <img src="/assets/loading.svg" alt="" width="16" />
@@ -79,25 +110,35 @@
 
       <div class="home-body">
         <div style="color: #fff; font-size: 16px">{{ $t("myassets") }}</div>
-        <n-card class="my--card assts-card glass-shadow" style="
+        <n-card
+          class="my--card assts-card glass-shadow"
+          style="
             --n-color: #fff;
             --n-text-color: #000;
             --n-title-text-color: #000;
             --n-padding-bottom: 0;
-          " :bordered="false">
+          "
+          :bordered="false"
+        >
           <Asset />
         </n-card>
 
         <div style="color: #fff; font-size: 16px">{{ $t("invitefrient") }}</div>
-        <div class="my--card assts-card glass-shadow" style="padding: 12px; display: flex; flex-direction: column">
+        <div
+          class="my--card assts-card glass-shadow"
+          style="padding: 12px; display: flex; flex-direction: column"
+        >
           <Bind />
-          <div style="
+          <div
+            style="
               width: 100%;
               display: flex;
               align-items: center;
               justify-content: center;
               gap: 10px;
-            " v-if="userInfo?.parentAddr">
+            "
+            v-if="userInfo?.parentAddr"
+          >
             <div style="color: #bbb">{{ $t("parent") }}:</div>
             <div @click="copy(userInfo?.parentAddr)">
               <i style="color: #f6c72f; text-decoration: underline">{{
@@ -109,10 +150,18 @@
 
         <div style="position: relative; margin-bottom: 30px">
           <div class="btn-group">
-            <div class="btn1" :class="[activeTab === 'order' ? 'btn-active' : '']" @click="activeTab = 'order'">
+            <div
+              class="btn1"
+              :class="[activeTab === 'order' ? 'btn-active' : '']"
+              @click="activeTab = 'order'"
+            >
               {{ $t("orderList") }}
             </div>
-            <div class="btn1" :class="[activeTab === 'team' ? 'btn-active' : '']" @click="activeTab = 'team'">
+            <div
+              class="btn1"
+              :class="[activeTab === 'team' ? 'btn-active' : '']"
+              @click="activeTab = 'team'"
+            >
               {{ $t("myteam") }}
             </div>
           </div>
@@ -140,8 +189,6 @@ import Bind from "@/components/Bind/index.vue";
 import Team from "@/components/Team/index.vue";
 import useClipboard from "vue-clipboard3";
 import { storeToRefs } from "pinia";
-import { get_default_presale_config } from "@/apis/api";
-import { useRouter } from "vue-router";
 import { WalletMultiButton, useAnchorWallet } from "solana-wallets-vue";
 import { PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
 import IDL from "@/idl.json";
@@ -157,114 +204,11 @@ const AnchorWallet = useAnchorWallet();
 
 const menuMode = ref(false);
 const walletStore = useWallet();
-const { connect, wallet, sign } = walletStore;
 const { userInfo } = storeToRefs(walletStore);
 const loading = ref(false);
 const { toClipboard } = useClipboard();
 const activeTab = ref("order");
-const realease_orders = ref(300);
 const message = useMessage();
-const router = useRouter();
-
-const menuOptinos = [
-  {
-    icon: "/assets/home.png",
-    label: "home",
-    click: () => {
-      window.open("https://pluscr.com/");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/ido.png",
-    label: "ido",
-    click: () => {
-      router.push("/");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/eno.png",
-    label: "eno",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/notice.png",
-    label: "notice",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/miner.png",
-    label: "mint",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/team.png",
-    label: "team",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/nft.png",
-    label: "NFT",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-  {
-    icon: "/assets/vote.png",
-    label: "vote",
-    click: () => {
-      message.info("Coming soon...");
-      menuMode.value = false;
-    },
-  },
-];
-const renderComponent = (_name, _url) =>
-  h(
-    "div",
-    {
-      style: "display:flex;align-items:center;justiry-content:center;",
-    },
-    [
-      h("span", null, {
-        default: () => _name,
-      }),
-      h(NAvatar, {
-        round: true,
-        style: "margin: 0 12px;",
-        src: _url,
-      }),
-    ]
-  );
-let options = ref([
-  {
-    label: "CN",
-    key: "zh",
-    select: true,
-    url: "/assets/zh.png",
-    render: renderComponent.bind(null, "CN", "/assets/zh.png"),
-  },
-  {
-    label: "EN",
-    key: "en",
-    select: false,
-    url: "/assets/en.png",
-    render: renderComponent.bind(null, "EN", "/assets/en.png"),
-  },
-]);
 
 const copy = async (value) => {
   await toClipboard(value);
@@ -275,71 +219,11 @@ const changelang = (lang) => {
   locale.value = lang;
   langMode.value = false;
 };
-const handleSelect = (e) => {
-  options.value = options.value.map((item) => {
-    if (item.key === e) item.select = true;
-    else item.select = false;
-    return item;
-  });
-  locale.value = e;
-};
 const isdone = ref(false);
 const popupRef = ref(null);
 const payPopupRef = ref(null);
 
 provide("payPopupRef", payPopupRef);
-
-watch([() => workspace.value, () => AnchorWallet.value], async () => {
-
-  if (workspace.value && workspace.value.program && AnchorWallet.value) {
-    console.log('workspace', workspace);
-    console.log('AnchorWallet', AnchorWallet.value)
-
-    const { program } = workspace.value;
-    console.log('program', program);
-    const baseAccount = Keypair.generate();
-
-    // 生成pda账户
-    const seeds = [
-      Buffer.from('bruh'),
-      AnchorWallet.value.publicKey.toBuffer()
-    ]
-    const [pda, bump] = PublicKey.findProgramAddressSync(seeds, program.programId);
-    // 调用读方法
-
-    // program.account.userAccount.fetch(pda.toBase58()).then(res => {
-    //   console.log('res', res)
-    // }).catch(err => {
-    //   console.log('err', err)
-    // })
-    const referrer = 'HKrPoMaCLRee7c9GYQtVGtKiajAyraVjjxVqGUSd1oa4';
-    const referrerPk = new PublicKey(referrer);
-
-    const seeds2 = [
-      Buffer.from('bruh'),
-      referrerPk.toBuffer()
-    ]
-    const [referrerPda, referrerBump] = PublicKey.findProgramAddressSync(seeds2, program.programId);
-    // 调用读参数
-    program.rpc.bindReferrer(referrerPk, {
-      accounts: {
-        user: AnchorWallet.value.publicKey,
-        userAccount: pda,
-        referrerAccount: referrerPda,
-        systemProgram: SystemProgram.programId
-      },
-      signers:[AnchorWallet.value]
-    }).then(res => {
-      console.log('res', res);
-    }).catch(err => {
-      console.error('err', err)
-    })
-  }
-})
-
-onMounted(() => {
-  initWorkspace();
-})
 </script>
 <style lang="less" scoped>
 .home-container {
@@ -352,7 +236,6 @@ onMounted(() => {
 .header {
   margin-bottom: 20px;
 
-
   ::v-deep(.swv-button) {
     font-size: 12px;
     font-weight: 500;
@@ -360,6 +243,17 @@ onMounted(() => {
     line-height: 30px;
     padding: 0 16px;
     border-radius: 8px;
+  }
+
+  ::v-deep(.swv-button-trigger) {
+    background: #f6c72f;
+  }
+  ::v-deep(.swv-button) {
+    &:not([disabled]) {
+      &:hover {
+        background: #f6c72f;
+      }
+    }
   }
 }
 
@@ -395,11 +289,13 @@ onMounted(() => {
   .top-card {
     height: 40px;
     width: 45%;
-    background-image: linear-gradient(to right,
-        #ddf0e6,
-        #bef79c,
-        #b5f7d9,
-        #cbf1ef);
+    background-image: linear-gradient(
+      to right,
+      #ddf0e6,
+      #bef79c,
+      #b5f7d9,
+      #cbf1ef
+    );
     line-height: 40px;
     font-size: 18px;
     font-weight: bold;
@@ -414,11 +310,13 @@ onMounted(() => {
     position: absolute;
     width: 5px;
     height: 100px;
-    background-image: linear-gradient(to top,
-        #ddf0e6,
-        #bef79c,
-        #b5f7d9,
-        #cbf1ef);
+    background-image: linear-gradient(
+      to top,
+      #ddf0e6,
+      #bef79c,
+      #b5f7d9,
+      #cbf1ef
+    );
     left: 0;
     top: 100px;
   }
@@ -445,11 +343,13 @@ onMounted(() => {
 
 .card-title {
   position: absolute;
-  background-image: linear-gradient(to right,
-      #ddf0e6,
-      #bef79c,
-      #b5f7d9,
-      #cbf1ef);
+  background-image: linear-gradient(
+    to right,
+    #ddf0e6,
+    #bef79c,
+    #b5f7d9,
+    #cbf1ef
+  );
   width: 60%;
   height: 40px;
   line-height: 40px;

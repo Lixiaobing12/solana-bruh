@@ -20,9 +20,15 @@ import { get_user_info_by_code } from "../../apis/api";
 import { storeToRefs } from "pinia";
 import { get_inviter, join } from "../../apis/contract";
 import { ethers } from "ethers";
+import { useWorkspace } from "@/useWorkspace";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { useAnchorWallet } from "solana-wallets-vue";
 
 const PayDialog = defineComponent({
   setup(props, { expose }) {
+    const workSpaceStore = useWorkspace();
+    const { workspace } = storeToRefs(workSpaceStore);
+    const AnchorWallet = useAnchorWallet();
     const message = useMessage();
     const { t } = useI18n();
     const isBind = ref(false);
@@ -32,43 +38,71 @@ const PayDialog = defineComponent({
     const { userInfo, wallet } = storeToRefs(walletStore);
     const loading = ref(false);
     const bind = async () => {
-      let parent = inviteParent.value;
-      const res = await get_user_info_by_code({
-        userCode: parent,
-      });
-      const parentAddr = res.data.userInfo.userAddr;
-      if (!Number(parentAddr)) return;
-      loading.value = true;
+      const { program } = workspace.value;
       try {
-        await join(parentAddr);
+        loading.value = true;
+        let parent = inviteParent.value;
+        let referrerPk = new PublicKey(parent);
+        let [pak1, bump1] = PublicKey.findProgramAddressSync(
+          [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+          program.programId
+        );
+        let [pak2, bump2] = PublicKey.findProgramAddressSync(
+          [Buffer.from("bruh"), referrerPk.toBuffer()],
+          program.programId
+        );
+        const tx = await program.methods
+          .bindReferrer(referrerPk)
+          .accounts({
+            user: AnchorWallet.value.publicKey,
+            userAccount: pak1,
+            referrerAccount: pak2,
+            systemProgram: SystemProgram.programId,
+          })
+          .rpc();
+        await fetch("/web/bind/createBruhBind", {
+          method: "POST",
+          body: JSON.stringify({ txId: tx }),
+        }).then((res) => res.json());
+        
+        message.success("绑定成功");
+        loading.value = false;
         showModal.value = false;
-        message.success(t("bindSuccess"));
       } catch (e) {
         console.log(e);
-        message.error(t("绑定失败"));
+        loading.value = false;
+        message.error("绑定失败");
       }
-      loading.value = false;
     };
-    const init = () => {
+
+    const init = async () => {
       const match = window.location.href.match(/\?code=([^&]*)/);
       const parent_code = match ? match[1] : null;
       let parent = parent_code;
       if (parent) {
         inviteParent.value = parent;
       }
-      get_inviter()
-        .then((res) => {
-          console.log("inviter:", res);
-          if (res === ethers.constants.AddressZero) {
-            isBind.value = false;
-            showModal.value = !isBind.value;
-          }
-        })
-        .catch(() => {
-          setTimeout(init, 1500);
-        });
+      try {
+        const [pda, bump] = PublicKey.findProgramAddressSync(
+          [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+          workspace.value.program.programId
+        );
+        const res = await workspace.value.program.account.userAccount.fetch(
+          pda
+        );
+        isBind.value = true;
+        showModal.value = false;
+      } catch (e) {
+        console.log(e);
+        isBind.value = false;
+        showModal.value = true;
+      }
     };
-    // init();
+    watch(AnchorWallet, () => {
+      if (AnchorWallet.value) {
+        init();
+      }
+    });
 
     expose({
       open: () => {
@@ -96,7 +130,9 @@ const PayDialog = defineComponent({
           aria-modal="true"
         >
           <NSpace align="center" justify="center" class="tip" vertical>
-            <NP style="color:#fff;">{t("tips")}</NP>
+            <NP style="color:#fff;font-weight:medium;font-size:18px;">
+              {t("tips")}
+            </NP>
             <NSpace
               align="center"
               justify="center"
@@ -138,14 +174,15 @@ const PayDialog = defineComponent({
 
 export default {
   setup() {
+    const AnchorWallet = useAnchorWallet();
     const { t } = useI18n();
-    const walletStore = useWallet();
-    const userInfo = computed(() => walletStore.userInfo);
     const message = useMessage();
     const { toClipboard } = useClipboard();
     const inviteUrl = computed(() => {
-      return userInfo.value?.selfhash > 0
-        ? window.location.origin + "?code=" + userInfo.value?.userCode
+      return AnchorWallet.value
+        ? window.location.origin +
+            "?code=" +
+            AnchorWallet.value.publicKey.toBase58()
         : "";
     });
     const copy = async () => {

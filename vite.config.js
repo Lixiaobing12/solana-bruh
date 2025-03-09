@@ -5,6 +5,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import path from 'path'
 import { defineConfig } from 'vite'
 import vueJsx from "@vitejs/plugin-vue-jsx"; // 配置vue使用jsx
+import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
     define: {
@@ -30,6 +31,10 @@ export default defineConfig({
         Components({
             resolvers: [NaiveUiResolver()],
         }),
+        nodePolyfills({
+            // 具体的配置选项，可根据需要调整
+            include: ['buffer'],
+        }),
     ],
     server: {
         host: '0.0.0.0',
@@ -39,7 +44,7 @@ export default defineConfig({
         // 设置代理
         proxy: {
             '/web': {
-                target: 'https://donata.pluscr.com',
+                target: 'http://108.61.181.196:8888',
                 changeOrigin: true,
             },
         }
