@@ -1,21 +1,14 @@
 <script lang="jsx">
 import { defineComponent, onMounted, ref, watch } from "vue";
 import { NProgress, NSlider, NP } from "naive-ui";
-import axios from "axios";
-import {
-  get_default_presale_config,
-  create_presale_order,
-  get_user_presale_count,
-} from "@/apis/api";
 export default defineComponent({
   setup() {
     const percentage = ref(0.0);
-    const fetch = () => {
-      get_default_presale_config().then((res) => {
-        const { presale, totalPresale } = res.data;
-        percentage.value = ((presale / totalPresale) * 100).toFixed(2);
+    fetch("/web/privateConfig/defaultPrivateConfig", { method: "POST" })
+      .then((res) => res.json())
+      .then((res) => {
+        percentage.value = (res.data.presale / res.data.totalPresale >= 0 || 0).toFixed(2);
       });
-    };
 
     return () => (
       <div class="index">
@@ -46,8 +39,8 @@ export default defineComponent({
   display: flex;
   align-items: center;
 
-  ::v-deep(.n-slider-rail__fill){
-    background-image: linear-gradient( 162deg, #F6C72F 0%, #F6E5D6 100%);
+  ::v-deep(.n-slider-rail__fill) {
+    background-image: linear-gradient(162deg, #f6c72f 0%, #f6e5d6 100%);
   }
   .n-p {
     flex-basis: 4em;
@@ -78,7 +71,7 @@ export default defineComponent({
     content: "";
     width: 10px;
     height: 20px;
-    background: linear-gradient( 180deg, #F6C72F 0%, #F6E5D6 100%);
+    background: linear-gradient(180deg, #f6c72f 0%, #f6e5d6 100%);
     border-radius: 10px;
     border: 2px solid #fff;
   }

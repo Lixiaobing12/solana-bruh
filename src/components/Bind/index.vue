@@ -64,14 +64,14 @@ const PayDialog = defineComponent({
           method: "POST",
           body: JSON.stringify({ txId: tx }),
         }).then((res) => res.json());
-        
-        message.success("绑定成功");
+
+        message.success(t("bindSuccess"));
         loading.value = false;
         showModal.value = false;
       } catch (e) {
         console.log(e);
         loading.value = false;
-        message.error("绑定失败");
+        message.error(t("bindError"));
       }
     };
 
@@ -177,8 +177,14 @@ export default {
     const AnchorWallet = useAnchorWallet();
     const { t } = useI18n();
     const message = useMessage();
+    const workSpaceStore = useWorkspace();
+    const { workspace } = storeToRefs(workSpaceStore);
     const { toClipboard } = useClipboard();
+    const isActive = ref(false);
     const inviteUrl = computed(() => {
+      if (!isActive.value) {
+        return "";
+      }
       return AnchorWallet.value
         ? window.location.origin +
             "?code=" +
@@ -186,9 +192,28 @@ export default {
         : "";
     });
     const copy = async () => {
-      await toClipboard(inviteUrl.value);
-      message.success(t("copied"));
+      if (isActive.value) {
+        await toClipboard(inviteUrl.value);
+        message.success(t("copied"));
+      }
     };
+    watch([() => AnchorWallet.value, workspace.value], async () => {
+      if (AnchorWallet.value) {
+        try {
+          const { program } = workspace.value;
+          const [pda, bump] = PublicKey.findProgramAddressSync(
+            [Buffer.from("bruh"), AnchorWallet.value.publicKey.toBuffer()],
+            program.programId
+          );
+          const { purchaseCount } =
+            await workspace.value.program.account.userAccount.fetch(pda);
+          console.log("purchaseCount", purchaseCount);
+          if (purchaseCount > 0) {
+            isActive.value = true;
+          }
+        } catch (e) {}
+      }
+    });
     return () => (
       <div class="bind--container">
         <n-input

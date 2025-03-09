@@ -16,7 +16,7 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { web3 } from "@coral-xyz/anchor";
+import { BN, web3 } from "@coral-xyz/anchor";
 
 const InputGroup = defineComponent({
   props: ["maxCount"],
@@ -117,10 +117,11 @@ export default {
               program.programId
             );
             const res = await program.account.config.fetch(pda);
+            console.log("config", res);
             info.value.maxPurchasesPerUser = res.maxPurchasesPerUser;
             info.value.payment = BigNumber(res.payment.toString())
               .div(LAMPORTS_PER_SOL)
-              .toFixed(2);
+              .toFixed(4);
             const userRes = await program.account.userAccount.fetch(pda2);
             info.value.usePurchaseCount = userRes.purchaseCount;
 
@@ -161,7 +162,7 @@ export default {
     };
     const payabled = async () => {
       loading.value = true;
-      let _price = (amount.value * price.value).toFixed(2);
+      let _price = amount.value * price.value;
       try {
         const { program, connection } = workspace.value;
 
@@ -213,10 +214,14 @@ export default {
         const userAta = getAssociatedTokenAddressSync(
           minPk,
           AnchorWallet.value.publicKey
+          // new PublicKey("EHscUboDTCxfBwUv11rg9GfpyicBNwh3TaEzj8fxadVs")
         );
+        console.log("userAta", userAta.toBase58());
         const userAtaInfo = await connection.getAccountInfo(userAta);
 
         const transition = new web3.Transaction();
+
+        console.log("userAta", userAtaInfo);
         if (!userAtaInfo) {
           /** 创建ATA */
           transition.add(
@@ -243,6 +248,7 @@ export default {
 
         console.log(
           "totalAmount",
+          _price,
           BigNumber(_price).times(LAMPORTS_PER_SOL).toFixed(0)
         );
         console.log({
@@ -259,9 +265,9 @@ export default {
           tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
           systemProgram: SystemProgram.programId.toBase58(),
         });
-
+        let bn = new BN(BigNumber(_price).times(LAMPORTS_PER_SOL).toString())
         const privateSaleTx = await program.methods
-          .privateSale(BigNumber(_price).times(LAMPORTS_PER_SOL).toFixed(0))
+          .privateSale(bn)
           .accounts({
             user: AnchorWallet.value.publicKey,
             userAccount: pda1,
@@ -364,7 +370,7 @@ export default {
             <NSpace justify="space-between" align="center" class="border">
               <div class="amount">{t("totalPrice")}</div>
               <NP style="color:#F6C72F;--n-font-size:20px;">
-                {(amount.value * price.value).toFixed(2)} SOL
+                {(amount.value * price.value).toFixed(4)} SOL
               </NP>
             </NSpace>
             <NSpace justify="space-between" align="center" class="text">

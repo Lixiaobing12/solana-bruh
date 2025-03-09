@@ -6,36 +6,51 @@ import axios from "axios";
 import { useWallet } from "../../store/wallet";
 import { get_presale_list } from "../../apis/api";
 import moment from "moment";
+import { useAnchorWallet } from "solana-wallets-vue";
 
 export default defineComponent({
   setup() {
     const { t } = useI18n();
     const walletStore = useWallet();
-    const account = computed(() => walletStore.wallet.account);
+    const anchorWallet = useAnchorWallet();
+    const account = computed(() => anchorWallet.value?.publicKey?.toBase58());
     const list = ref([]);
-    const fetch = () => {
-      get_presale_list({
-        userAddr: account.value,
-        page: 1,
-        pageSize: 99,
-      }).then((res) => {
-        list.value = res.data.list.map((item) => ({
-          amount: item.amount,
-          time: moment(item.CreatedAt).format("YYYY-MM-DD HH:mm:ss"),
-          status: Number(item.status),
-        }));
-      });
+    const getData = () => {
+      fetch("/web/privateSale/getBruhPrivateSaleList", {
+        method: "POST",
+        body: JSON.stringify({
+          user: account.value,
+          page: 1,
+          pageSize: 99,
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          console.log("res", res);
+          list.value = res.data.list;
+        });
+      // get_presale_list({
+      //   userAddr: account.value,
+      //   page: 1,
+      //   pageSize: 99,
+      // }).then((res) => {
+      //   list.value = res.data.list.map((item) => ({
+      //     amount: item.amount,
+      //     time: moment(item.CreatedAt).format("YYYY-MM-DD HH:mm:ss"),
+      //     status: Number(item.status),
+      //   }));
+      // });
     };
-    // watch(
-    //   account,
-    //   () => {
-    //     fetch();
-    //     setInterval(fetch, 6000);
-    //   },
-    //   {
-    //     immediate: true,
-    //   }
-    // );
+
+    watch(
+      account,
+      () => {
+        account.value && getData();
+      },
+      {
+        immediate: true,
+      }
+    );
     return () => (
       <div class="w-full p-4">
         {list.value.length ? (
@@ -45,25 +60,27 @@ export default defineComponent({
                 {list.value.map((item) => (
                   <NListItem class="list-item" style="border-radius:10px">
                     <div class="header">
-                      <span class="text-white">数量(USDT)</span>
-                      <span style="color:#fff">{item.amount}</span>
+                      <span class="text-black">{t("quantity")}</span>
+                      <span style="color:#000">{item.paymentAmount}</span>
                     </div>
                     <div class="header">
-                      <span class="text-[#bbb]">订单状态</span>
+                      <span class="text-[#878181]">{t("OrderStatus")}</span>
                       {item.status === -1 ? (
                         <span style="color:#FF5252">购买失败</span>
                       ) : item.status === 0 ? (
                         <span style="color:#bbb">交易确认中</span>
                       ) : item.status === 1 ? (
-                        <span style="color:#F6C72F">购买成功</span>
+                        <span style="color:#F6C72F">{t("status_success")}</span>
                       ) : (
-                        <span style="color:#F6C72F">购买成功</span>
+                        <span style="color:#F6C72F">{t("status_success")}</span>
                       )}
                     </div>
                     <NDivider style="margin:0;--n-color:#434343;width:95%;margin:5px auto;" />
                     <div class="item">
-                      <span class="text-[#bbb]">创建时间:</span>
-                      <span class="text-[#bbb]">{item.time}</span>
+                      <span class="text-[#878181]">{t("createTime")}:</span>
+                      <span class="text-[#000]">
+                        {moment(item.UpdatedAt).format("YYYY-MM-DD HH:mm:ss")}
+                      </span>
                     </div>
                   </NListItem>
                 ))}

@@ -67,6 +67,11 @@
           "isSigner": false
         },
         {
+          "name": "authorizer",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
           "name": "systemProgram",
           "isMut": false,
           "isSigner": false
@@ -147,7 +152,7 @@
         {
           "name": "projectWallet",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false
         },
         {
           "name": "referrer1",
@@ -225,35 +230,21 @@
           "type": "publicKey"
         }
       ]
-    },
-    {
-      "name": "getReferrer",
-      "accounts": [
-        {
-          "name": "userAccount",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [],
-      "returns": "publicKey"
-    },
-    {
-      "name": "getConfig",
-      "accounts": [
-        {
-          "name": "config",
-          "isMut": false,
-          "isSigner": false
-        }
-      ],
-      "args": [],
-      "returns": {
-        "defined": "Config"
-      }
     }
   ],
   "accounts": [
+    {
+      "name": "AuthorityAccount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "Config",
       "type": {
@@ -394,9 +385,19 @@
       "code": 6006,
       "name": "CannotBindSelf",
       "msg": "User cannot bind to themselves."
+    },
+    {
+      "code": 6007,
+      "name": "InvalidReferrer",
+      "msg": "Invalid referrer in the chain."
+    },
+    {
+      "code": 6008,
+      "name": "ReferrerNotBound",
+      "msg": "Referrer is not bound."
     }
   ],
   "metadata": {
-    "address": "3KMgxceYiviFaPWN5K4rUS1yBuBpqixDqFrcTULhcXoh"
+    "address": "AArAsXALYWEMYDeW1HKG2MqQdcsHPGbmRxHZuvBqKeRf"
   }
 }

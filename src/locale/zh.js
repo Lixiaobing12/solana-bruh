@@ -16,7 +16,7 @@ export default {
     createTime: '创建时间',
     confirmOrders: '确认订单',
     joinGetReward: '参与活动可获得挖矿算力',
-    quantity: '数量(份)',
+    quantity: '数量(SOL)',
     vilidInput: '输入非法字符，请重新输入',
     least: '起',
     totalPrice: '合计',
@@ -32,7 +32,7 @@ export default {
     balance: '余额',
     'ConfirmPayment': '确认支付',
     tips: "温馨提示",
-    succeeded: '支付成功',
+    succeeded: '支付成功,请等待链上交易校验完成',
     failed: '支付失败,请重新尝试或者联系管理员',
     backHome: '返回首页',
     'OrderStatus': "订单状态",
@@ -73,5 +73,5 @@ export default {
         hour:"时",
         minute:"分",
         seconds:"秒"
-    }
+    },
 }

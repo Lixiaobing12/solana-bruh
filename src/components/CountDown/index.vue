@@ -56,6 +56,9 @@ export default defineComponent({
       .then((res) => res.json())
       .then((res) => {
         console.log("res", res);
+        endTime.value = moment
+          .unix(res.data.endAt)
+          .format("YYYY-MM-DD HH:mm:ss");
       });
     return () => (
       <>

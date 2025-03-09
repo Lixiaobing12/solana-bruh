@@ -25,6 +25,7 @@ export default defineComponent({
         .then((res) => res.json())
         .then((res) => {
           console.log("res", res);
+          list.value = res.data.list;
         });
     };
     watch(
@@ -46,40 +47,40 @@ export default defineComponent({
                   <>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:start;">
-                        <span style="color:#aaa;font-size:12px;">
+                        <span style="color:#878181;font-size:12px;">
                           {t("address")}
                         </span>
-                        <span style="color:#F6C72F;font-size:12px;">
-                          {item.userAddr.replace(/(.{3}).*(.{4})$/, "$1...$2")}
+                        <span style="color:#000;font-size:12px;">
+                          {item.user.replace(/(.{3}).*(.{4})$/, "$1...$2")}
                         </span>
                       </div>
                     </n-gi>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:center;">
-                        <span style="color:#aaa;font-size:12px;">
+                        <span style="color:#878181;font-size:12px;">
                           {t("subordinates")}
                         </span>
-                        <span style="color:#F6C72F">
-                          {item.maxTeamUsersCount}
+                        <span style="color:#000">
+                          {item.teamCount}
                         </span>
                       </div>
                     </n-gi>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:center;">
-                        <span style="color:#aaa;font-size:12px;">
+                        <span style="color:#878181;font-size:12px;">
                           {t("selfHash")}
                         </span>
-                        <span style="color:#F6C72F">
+                        <span style="color:#000">
                           {Number(item.selfhash).toFixed(2)}
                         </span>
                       </div>
                     </n-gi>
                     <n-gi>
                       <div style="display:flex;flex-direction:column;align-items:center;">
-                        <span style="color:#aaa;font-size:12px;">
+                        <span style="color:#878181;font-size:12px;">
                           {t("teamHash")}
                         </span>
-                        <span style="color:#F6C72F">
+                        <span style="color:#000">
                           {Number(item.teamhash).toFixed(2)}
                         </span>
                       </div>

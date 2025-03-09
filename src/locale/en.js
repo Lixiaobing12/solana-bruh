@@ -16,7 +16,7 @@ export default {
     createTime: 'Create Time',
     confirmOrders: 'Confirm',
     joinGetReward: 'Participate in activities to gain mining Hash',
-    quantity: 'Quantity (copies)',
+    quantity: 'Quantity (SOL)',
     vilidInput: 'Illegal character input, please input again',
     least: 'At least',
     totalPrice: 'Totally',
