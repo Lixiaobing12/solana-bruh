@@ -33,7 +33,7 @@ export const initWorkspace = () => {
 
     watchEffect(() => {
         const currentWallet = wallet.value;
-        const connection = new Connection(clusterApiUrl(import.meta.env.VITE_SOLANA_NETWORK), commitment);
+        const connection = new Connection('https://solana-mainnet.g.alchemy.com/v2/f8jmZM0T4Ejv_D2F7WA7RDGQmAI_wQ07', 'finalized');
         if (currentWallet && currentWallet) {
             const provider = computed(
                 () =>

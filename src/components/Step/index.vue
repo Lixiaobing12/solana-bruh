@@ -7,7 +7,10 @@ export default defineComponent({
     fetch("/web/privateConfig/defaultPrivateConfig", { method: "POST" })
       .then((res) => res.json())
       .then((res) => {
-        percentage.value = (res.data.presale / res.data.totalPresale >= 0 || 0).toFixed(2);
+        console.log("res------", res);
+        percentage.value = (res.data.presale / res.data.totalPresale).toFixed(
+          2
+        );
       });
 
     return () => (
