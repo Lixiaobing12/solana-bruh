@@ -12,6 +12,7 @@ import {
   useMessage,
   NTag,
   NSpin,
+  NIcon,
 } from "naive-ui";
 import axios from "axios";
 import { useI18n } from "vue-i18n";
@@ -23,6 +24,7 @@ import { ethers } from "ethers";
 import { useWorkspace } from "@/useWorkspace";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAnchorWallet } from "solana-wallets-vue";
+import { CloseCircleOutlined } from "@vicons/antd";
 
 const PayDialog = defineComponent({
   setup(props, { expose }) {
@@ -94,8 +96,10 @@ const PayDialog = defineComponent({
         showModal.value = false;
       } catch (e) {
         console.log(e);
+        if (parent) {
+          showModal.value = true;
+        }
         isBind.value = false;
-        showModal.value = true;
       }
     };
     watch(AnchorWallet, () => {
@@ -112,7 +116,7 @@ const PayDialog = defineComponent({
     return () => (
       <NModal
         v-model={[showModal.value, "show"]}
-        mask-closable={false}
+        mask-closable
         transform-origin="center"
         class="pay--modal"
         trap-focus={false}
@@ -129,6 +133,14 @@ const PayDialog = defineComponent({
           role="dialog"
           aria-modal="true"
         >
+          <NIcon
+            class="absolute right-3 top-3"
+            color="#fff"
+            size="22"
+            onClick={() => (showModal.value = false)}
+          >
+            <CloseCircleOutlined />
+          </NIcon>
           <NSpace align="center" justify="center" class="tip" vertical>
             <NP style="color:#fff;font-weight:medium;font-size:18px;">
               {t("tips")}

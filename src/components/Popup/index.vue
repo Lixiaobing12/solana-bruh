@@ -121,7 +121,7 @@ export default {
             info.value.maxPurchasesPerUser = res.maxPurchasesPerUser;
             info.value.payment = BigNumber(res.payment.toString())
               .div(LAMPORTS_PER_SOL)
-              .toFixed(4);
+              .toFixed(2);
             const userRes = await program.account.userAccount.fetch(pda2);
             info.value.usePurchaseCount = userRes.purchaseCount;
 
@@ -203,12 +203,12 @@ export default {
           const referrer = await program.account.userAccount
             .fetch(pda)
             .then(({ referrer }) => referrer.toBase58())
-            .catch(() => defaultReferrer.toBase58());
+            .catch(() => projectWallet.toBase58());
 
           console.log(referrer, PublicKey.default.toBase58());
           if (referrer === PublicKey.default.toBase58()) {
             let _arrs = Array.from({ length: 3 }).map(
-              (_, i) => referrers[i] || defaultReferrer.toBase58()
+              (_, i) => referrers[i] || projectWallet.toBase58()
             );
             referrers = _arrs;
             break;
@@ -329,7 +329,7 @@ export default {
             body-style={{
               "border-radius": "15px 15px 0 0",
               "background-image":
-                "linear-gradient(to bottom right, #00feef 30%, #785ef0)",
+                "linear-gradient( 321deg, #181D1C 0%, #413612 22%, #4D3E0F 46%, #6A3A1D 75%, #6A3126 100%)",
               "border-top": "1px solid #978FF6",
             }}
           >
@@ -357,7 +357,7 @@ export default {
                 ),
                 description: () => (
                   <span style="color:#F6C72F;font-size:16px;font-weight:bold;">
-                    {price.value}SOL{t("least")}
+                    {price.value} SOL{t("least")}
                   </span>
                 ),
               }}

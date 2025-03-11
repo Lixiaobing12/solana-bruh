@@ -52,11 +52,11 @@ export default defineComponent({
                 {list.value.map((item) => (
                   <NListItem class="list-item" style="border-radius:10px">
                     <div class="header">
-                      <span class="text-black">{t("quantity")}</span>
-                      <span style="color:#000">{item.paymentAmount}</span>
+                      <span class="text-white">{t("quantity")}</span>
+                      <span style="color:#fff">{item.paymentAmount}</span>
                     </div>
                     <div class="header">
-                      <span class="text-[#878181]">{t("OrderStatus")}</span>
+                      <span class="text-[#bbb]">{t("OrderStatus")}</span>
                       {item.status === -1 ? (
                         <span style="color:#FF5252">购买失败</span>
                       ) : item.status === 0 ? (
@@ -69,8 +69,8 @@ export default defineComponent({
                     </div>
                     <NDivider style="margin:0;--n-color:#434343;width:95%;margin:5px auto;" />
                     <div class="item">
-                      <span class="text-[#878181]">{t("createTime")}:</span>
-                      <span class="text-[#000]">
+                      <span class="text-[#bbb]">{t("createTime")}:</span>
+                      <span class="text-[#bbb]">
                         {moment(item.UpdatedAt).format("YYYY-MM-DD HH:mm:ss")}
                       </span>
                     </div>

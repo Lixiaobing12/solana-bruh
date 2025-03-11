@@ -32,7 +32,8 @@ onMounted(() => {
 <style lang="less" scoped>
 .layout {
   min-height: 100vh;
-  background: linear-gradient(to bottom right, #00feef 30%, #785ef0);
+  background-image: url('/assets/bg.png');
+  // background: linear-gradient(to bottom right, #00feef 30%, #785ef0);
   background-size: 100% 100%;
 
   .header {

@@ -8,11 +8,18 @@
             align="center"
             style="padding: 30px 20px 20px"
           >
-            <strong style="color: #fff; font-size: 18px"> POPOY </strong>
+            <strong style="color: #fff; font-size: 18px"> BRUH </strong>
             <div>
               <div class="flex gap-4 items-center">
                 <!-- <button class="border rounded-full px-2">{{ $t('connectWallet') }}</button> -->
+                <a href="https://x.com/Bruhcatsol" target="_blank">
+                  <n-icon color="#fff" size="25" class="align-middle">
+                    <TwitterOutlined />
+                  </n-icon>
+                </a>
+                <img src="/assets/launchpad.png" width="20" @click="message.info('coming soon')"/>
                 <wallet-multi-button></wallet-multi-button>
+
                 <div class="relative">
                   <img
                     src="/assets/lang.png"
@@ -194,6 +201,7 @@ import { PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
 import IDL from "@/idl.json";
 import { useWorkspace, initWorkspace } from "../useWorkspace";
 import { watch } from "vue";
+import { TwitterOutlined } from "@vicons/antd";
 
 const workSpaceStore = useWorkspace();
 const { workspace } = storeToRefs(workSpaceStore);

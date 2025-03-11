@@ -3,7 +3,7 @@ import en from "./en";
 import zh from "./zh";
 
 export default createI18n({
-    locale:'en',
+    locale:'zh',
     legacy:false,
     globalInjection:true,
     messages:{

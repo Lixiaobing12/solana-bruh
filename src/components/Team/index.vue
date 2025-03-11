@@ -50,7 +50,7 @@ export default defineComponent({
                         <span style="color:#878181;font-size:12px;">
                           {t("address")}
                         </span>
-                        <span style="color:#000;font-size:12px;">
+                        <span style="color:#F6C72F;font-size:12px;">
                           {item.user.replace(/(.{3}).*(.{4})$/, "$1...$2")}
                         </span>
                       </div>
@@ -60,7 +60,7 @@ export default defineComponent({
                         <span style="color:#878181;font-size:12px;">
                           {t("subordinates")}
                         </span>
-                        <span style="color:#000">
+                        <span style="color:#F6C72F">
                           {item.teamCount}
                         </span>
                       </div>
@@ -70,7 +70,7 @@ export default defineComponent({
                         <span style="color:#878181;font-size:12px;">
                           {t("selfHash")}
                         </span>
-                        <span style="color:#000">
+                        <span style="color:#F6C72F">
                           {Number(item.selfhash).toFixed(2)}
                         </span>
                       </div>
@@ -80,7 +80,7 @@ export default defineComponent({
                         <span style="color:#878181;font-size:12px;">
                           {t("teamHash")}
                         </span>
-                        <span style="color:#000">
+                        <span style="color:#F6C72F">
                           {Number(item.teamhash).toFixed(2)}
                         </span>
                       </div>
