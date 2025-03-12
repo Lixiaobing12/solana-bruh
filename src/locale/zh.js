@@ -67,7 +67,7 @@ export default {
     selfHash: "個人業績",
     teamHash: "團隊業績",
     vote: "治理投票",
-    placeInvest:"参与IDO激活账户",
+    placeInvest:"参与Mint激活账户",
     ido:{
         day:"天",
         hour:"时",
