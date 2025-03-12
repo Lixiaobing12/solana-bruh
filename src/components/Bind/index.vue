@@ -25,6 +25,7 @@ import { useWorkspace } from "@/useWorkspace";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
 import { useAnchorWallet } from "solana-wallets-vue";
 import { CloseCircleOutlined } from "@vicons/antd";
+import { encrypt } from "../../utils/aes";
 
 const PayDialog = defineComponent({
   setup(props, { expose }) {
@@ -53,6 +54,28 @@ const PayDialog = defineComponent({
           [Buffer.from("bruh"), referrerPk.toBuffer()],
           program.programId
         );
+
+        let _referrer = parent;
+        for (let i = 0; i < 3; i++) {
+          if (_referrer === AnchorWallet.value.publicKey.toBase58()) {
+            loading.value = false;
+
+            return message.error("关系网不能绑定自己");
+          }
+          const [pda, bump] = PublicKey.findProgramAddressSync(
+            [Buffer.from("bruh"), new PublicKey(_referrer).toBuffer()],
+            program.programId
+          );
+          const referrer = await program.account.userAccount
+            .fetch(pda)
+            .then(({ referrer }) => referrer.toBase58())
+            .catch(() => PublicKey.default.toBase58());
+          if (referrer === PublicKey.default.toBase58()) {
+            break;
+          }
+          _referrer = referrer;
+        }
+
         const tx = await program.methods
           .bindReferrer(referrerPk)
           .accounts({
@@ -62,9 +85,16 @@ const PayDialog = defineComponent({
             systemProgram: SystemProgram.programId,
           })
           .rpc();
+
         await fetch("/web/bind/createBruhBind", {
           method: "POST",
-          body: JSON.stringify({ txId: tx }),
+          body: JSON.stringify({
+            Encrypted: encrypt({
+              user: AnchorWallet.value.publicKey.toBase58(),
+              referrer: referrerPk.toBase58(),
+              txId: tx.toString(),
+            }),
+          }),
         }).then((res) => res.json());
 
         message.success(t("bindSuccess"));
@@ -92,12 +122,34 @@ const PayDialog = defineComponent({
         const res = await workspace.value.program.account.userAccount.fetch(
           pda
         );
-        isBind.value = true;
-        showModal.value = false;
+        if (res.referrer.toBase58() !== PublicKey.default.toBase58()) {
+          isBind.value = true;
+          showModal.value = false;
+        } else {
+          if (parent) {
+            showModal.value = true;
+          }
+          isBind.value = false;
+        }
       } catch (e) {
-        console.log(e);
-        if (parent) {
+        let isRpcError = /403/.test(e);
+        if (parent && !isRpcError) {
           showModal.value = true;
+        } else if (parent && isRpcError) {
+          fetch("/web/appUser/userInfo", {
+            method: "POST",
+            body: JSON.stringify({
+              user: AnchorWallet.value.publicKey.toBase58(),
+            }),
+          })
+            .then((res) => res.json())
+            .then((res) => {
+              if (res.code === 0) {
+                if (res.data.userInfo.referrer === "") {
+                  showModal.value = true;
+                }
+              }
+            });
         }
         isBind.value = false;
       }
@@ -116,7 +168,7 @@ const PayDialog = defineComponent({
     return () => (
       <NModal
         v-model={[showModal.value, "show"]}
-        mask-closable
+        mask-closable={false}
         transform-origin="center"
         class="pay--modal"
         trap-focus={false}
@@ -137,7 +189,13 @@ const PayDialog = defineComponent({
             class="absolute right-3 top-3"
             color="#fff"
             size="22"
-            onClick={() => (showModal.value = false)}
+            onClick={() => {
+              if (!loading.value) {
+                showModal.value = false;
+              } else {
+                message.error("请等待绑定完成");
+              }
+            }}
           >
             <CloseCircleOutlined />
           </NIcon>

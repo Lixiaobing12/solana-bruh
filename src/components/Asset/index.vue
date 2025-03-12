@@ -67,7 +67,7 @@ export default defineComponent({
       }
     });
     return () => (
-      <NSpace align="center" justify="space-around" style="width:80vw;">
+      <NSpace align="center" justify="space-around" class="w-full">
         <NSpace vertical align="center">
           <NP class="asset">{reward.value}</NP>
           <div class="tip"> {t("totalReward")} </div>

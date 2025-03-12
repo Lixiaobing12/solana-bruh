@@ -59,7 +59,7 @@ export default {
     notice: "公告",
     mint: "挖礦",
     eno: "生態",
-    totalReward: 'IDO總量/Sol',
+    totalReward: 'Mint總量/Sol',
     copyLink: '複製鏈接',
     parent: '我的上級',
     address: '钱包地址',

@@ -59,7 +59,7 @@ export default {
     notice: "Notice",
     mint: "Mint",
     eno: "Ecology",
-    totalReward: 'MyIDO/Sol',
+    totalReward: 'Minted/Sol',
     address: 'Address',
     copyLink: 'Copy',
     parent: 'My Parent',

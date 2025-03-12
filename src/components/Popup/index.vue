@@ -24,7 +24,7 @@ const InputGroup = defineComponent({
     console.log("props", props);
     const message = useMessage();
     const { t } = useI18n();
-    const amount = ref(1);
+    const amount = ref(props.maxCount);
     const minusColor = ref("#DADADA");
     const onChange = (e) => {
       if (isNaN(Number(e))) {
@@ -47,6 +47,7 @@ const InputGroup = defineComponent({
       }
       emit("change", amount.value);
     };
+
     return () => (
       <NSpace align="center">
         <NIcon
@@ -189,39 +190,28 @@ export default {
           program.programId
         );
 
-        let referrers = [];
-        while (referrers.length < 3) {
-          const [pda, bump] = PublicKey.findProgramAddressSync(
-            [
-              Buffer.from("bruh"),
-              referrers.length
-                ? new PublicKey(referrers[referrers.length - 1]).toBuffer()
-                : AnchorWallet.value.publicKey.toBuffer(),
-            ],
-            program.programId
-          );
-          const referrer = await program.account.userAccount
-            .fetch(pda)
-            .then(({ referrer }) => referrer.toBase58())
-            .catch(() => projectWallet.toBase58());
-
-          console.log(referrer, PublicKey.default.toBase58());
-          if (referrer === PublicKey.default.toBase58()) {
-            let _arrs = Array.from({ length: 3 }).map(
-              (_, i) => referrers[i] || projectWallet.toBase58()
-            );
-            referrers = _arrs;
-            break;
-          } else {
-            referrers.push(referrer);
+        let referrers = await fetch("/web/bind/findBruhBinds", {
+          method: "POST",
+          body: JSON.stringify({
+            user: AnchorWallet.value.publicKey.toBase58(),
+          }),
+        })
+          .then((res) => res.json())
+          .then((res) => res.data)
+          .catch(() => ({
+            referrer_1: projectWallet.toBase58(),
+            referrer_2: projectWallet.toBase58(),
+            referrer_3: projectWallet.toBase58(),
+          }));
+        for (let k of Object.keys(referrers)) {
+          if (referrers[k] === "") {
+            referrers[k] = projectWallet.toBase58();
           }
         }
-
         const userAta = getAssociatedTokenAddressSync(
           mintToken,
           AnchorWallet.value.publicKey
         );
-        console.log("userAta", userAta.toBase58());
         const userAtaInfo = await connection.getAccountInfo(userAta);
 
         const transition = new web3.Transaction();
@@ -247,27 +237,9 @@ export default {
           loading.value = false;
           return;
         }
-
-        console.log(
-          "totalAmount",
-          _price,
-          BigNumber(_price).times(LAMPORTS_PER_SOL).toFixed(0)
-        );
-        console.log({
-          user: AnchorWallet.value.publicKey.toBase58(),
-          userAccount: pda1.toBase58(),
-          config: pda2.toBase58(),
-          projectWallet: projectWallet.toBase58(),
-          referrer1: referrers[0],
-          referrer2: referrers[1],
-          referrer3: referrers[2],
-          authorizer: pda3.toBase58(),
-          userTokenAccount: userAta.toBase58(),
-          projectTokenAccount: projectAta.toBase58(),
-          tokenProgram: TOKEN_PROGRAM_ID.toBase58(),
-          systemProgram: SystemProgram.programId.toBase58(),
-        });
         let bn = new BN(BigNumber(_price).times(LAMPORTS_PER_SOL).toString());
+
+        console.log(referrers);
         const privateSaleTx = await program.methods
           .privateSale(bn)
           .accounts({
@@ -275,9 +247,9 @@ export default {
             userAccount: pda1,
             config: pda2,
             projectWallet: projectWallet.toBase58(),
-            referrer1: referrers[0],
-            referrer2: referrers[1],
-            referrer3: referrers[2],
+            referrer1: referrers.referrer_1,
+            referrer2: referrers.referrer_2,
+            referrer3: referrers.referrer_3,
             authorizer: pda3,
             userTokenAccount: userAta,
             projectTokenAccount: projectAta,

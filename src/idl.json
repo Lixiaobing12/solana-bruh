@@ -87,6 +87,10 @@
           "type": "u64"
         },
         {
+          "name": "rewardAmount",
+          "type": "u64"
+        },
+        {
           "name": "maxPurchases",
           "type": "u8"
         },
@@ -226,6 +230,10 @@
           "type": "u64"
         },
         {
+          "name": "rewardAmount",
+          "type": "u64"
+        },
+        {
           "name": "maxPurchases",
           "type": "u8"
         },
@@ -264,6 +272,10 @@
           },
           {
             "name": "payment",
+            "type": "u64"
+          },
+          {
+            "name": "rewardAmount",
             "type": "u64"
           },
           {
@@ -414,6 +426,6 @@
     }
   ],
   "metadata": {
-    "address": "CCShViBX17ngQYRVHy4yGRYrJoPehweq1jsmYetY1REF"
+    "address": "9eraXViVL39r7hhqHcUPoqBikWz4dchuVGM2GeRUygrT"
   }
 }

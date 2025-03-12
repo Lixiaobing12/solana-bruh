@@ -17,7 +17,9 @@
                     <TwitterOutlined />
                   </n-icon>
                 </a>
-                <img src="/assets/launchpad.png" width="20" @click="message.info('coming soon')"/>
+                <a href="https://pump.bruh.baby" target="_blank">
+                  <img src="/assets/launchpad.png" width="20" />
+                </a>
                 <wallet-multi-button></wallet-multi-button>
 
                 <div class="relative">
@@ -67,7 +69,12 @@
           <NSpace vertical>
             <CountDown />
             <Step />
-            <NSpace justify="space-between" align="center" style="gap: 0">
+            <NSpace
+              justify="space-between"
+              align="center"
+              style="gap: 0"
+              class="[&>div]:w-full"
+            >
               <div
                 style="
                   background: linear-gradient(
@@ -81,7 +88,6 @@
                   );
                   padding: 8px;
                   border-radius: 9999px;
-                  width: 88vw;
                   margin-top: 16px;
                 "
               >
@@ -118,16 +124,17 @@
       <div class="home-body">
         <div style="color: #fff; font-size: 16px">{{ $t("myassets") }}</div>
         <n-card
-          class="my--card assts-card glass-shadow"
+          class="my--card assts-card glass-shadow [&>div]:w-full"
           style="
             --n-color: #fff;
             --n-text-color: #000;
             --n-title-text-color: #000;
             --n-padding-bottom: 0;
+            width: 100%;
           "
           :bordered="false"
         >
-          <Asset />
+          <Asset class="w-full" />
         </n-card>
 
         <div style="color: #fff; font-size: 16px">{{ $t("invitefrient") }}</div>
@@ -202,6 +209,7 @@ import IDL from "@/idl.json";
 import { useWorkspace, initWorkspace } from "../useWorkspace";
 import { watch } from "vue";
 import { TwitterOutlined } from "@vicons/antd";
+import moment from "moment";
 
 const workSpaceStore = useWorkspace();
 const { workspace } = storeToRefs(workSpaceStore);
@@ -232,6 +240,13 @@ const popupRef = ref(null);
 const payPopupRef = ref(null);
 
 provide("payPopupRef", payPopupRef);
+
+fetch("/web/privateConfig/defaultPrivateConfig", { method: "POST" })
+  .then((res) => res.json())
+  .then((res) => {
+    isdone.value = moment.unix(res.data.endAt).isBefore(moment());
+    console.log(isdone.value);
+  });
 </script>
 <style lang="less" scoped>
 .home-container {
